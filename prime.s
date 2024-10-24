@@ -18,17 +18,18 @@
 modulo:
 
 	# TO DO: write this function
-	cmp $0x0, %rdi
-	jg .exit
+	pushq %rbp		# store rbp
+	movq %rsp, %rbp		# set base pointer
 .loop:
-	subq %rsi, %rdi
-	call modulo
+	cmpq %rsi, %rdi		# compare %rdi - %rsi
+	js .exit		# exit if x < y
+	subq %rsi, %rdi		# x -= y
+	jmp .loop		
 .exit:
-	addq %rsi, %rdi
-	xorq %rax, %rax
-	movq %rdi, %rax
-
-	retq
+	addq %rsi, %rdi		# x += y
+	movq %rdi, %rax		# store (x) result in rax
+	popq %rbp		# restore base pointer
+	retq 
 
 ############################################################
 ##                 end of modulo routine                  ##
@@ -42,20 +43,22 @@ modulo:
 
 	.globl	gcd
 gcd:
-
-	# TO DO: write this function
-	push %rsi
+	# TO DO: write this function RECURSIVE
+	pushq %rbp		# store rbp
+	movq %rsp, %rbp		# update base pointer
+	
 .loop:
-	cmp $0x0, %rsi
+	pushq %rsi		# store y on the stack
+	cmpq $0x0, %rsi		# exit if y == 0	
 	je .exit
 	call modulo
-	cmp $0x0, %rax
-	popq %rdi
-	movq %rax, %rsi
-	call gcd
+	movq %rax, %rsi		# y = result of mod			
+	popq %rdi		# x equals previous y
+	jmp .loop		# recursive call
 .exit:
-	xorq %rax, %rax
-	movq %rax, %rdi
+	movq %rbp, %rsp		# update stack pointer
+	popq %rbp		# restore base pointer
+	movq %rdi, %rax		# store x in rax
 	retq
 
 ############################################################
@@ -72,26 +75,36 @@ gcd:
 prime:
 
 	# TO DO: write this function
-	movq $0x02, %rsi
+	pushq %rbp		# store base pointer
+	movq %rsp, %rbp		# update base pointer
+	pushq %rbx		# store register for later use
+	
+	movq $0x02, %rsi	# loop increment start value
 .loop:
-	cmp %rsi, %rdi
+	cmpq %rsi, %rdi		# i = x --> is prime
 	je .is_prime
 	
-	pushq %rsi
-	pushq %rdi
-	call gcd
-	cmp $0x1, %rax
+	pushq %rsi		# store y
+	pushq %rdi		# store x
+	call gcd		
+	cmpq $0x1, %rax		# if gcd != 1 --> not prime
 	jne .not_prime
-	popq %rdi
-	popq %rsi
+	popq %rdi		# restore x
+	popq %rsi		# restore i
+	addq $0x1, $rsi		# increment i
+	jmp .loop
+		 
 .is_prime:
-	xorq %rax, %rax
-	movq $0x0, %rax
-	retq
+	xorq %rax, %rax		# clear return register
+	jmp .exit
+		
 .not_prime:
-	xorq %rax, %rax
-	movq $0x1, %rax
+	movq $0x1, %rax		# set return register to 1
+.exit:
+	movq %rbp, %rsp		# set stack pointer
+	popq %rpb		# restore base pointer
 	retq
+	
 
 ############################################################
 ##                end of prime routine                    ##
