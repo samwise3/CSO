@@ -22,7 +22,7 @@ modulo:
 	movq %rsp, %rbp		# set base pointer
 .loop:
 	cmpq %rsi, %rdi		# compare %rdi - %rsi
-	js .exit		# exit if x < y
+	jl .exit		# exit if x < y
 	subq %rsi, %rdi		# x -= y
 	jmp .loop		
 .exit:
@@ -49,7 +49,7 @@ gcd:
 	
 .loop:
 	pushq %rsi		# store y on the stack
-	cmpq $0x0, %rsi		# exit if y == 0	
+	cmpq $0, %rsi		# exit if y == 0	
 	je .exit
 	call modulo
 	movq %rax, %rsi		# y = result of mod			
@@ -77,9 +77,8 @@ prime:
 	# TO DO: write this function
 	pushq %rbp		# store base pointer
 	movq %rsp, %rbp		# update base pointer
-	pushq %rbx		# store register for later use
 	
-	movq $0x02, %rsi	# loop increment start value
+	movq $2, %rsi		# loop increment start value
 .loop:
 	cmpq %rsi, %rdi		# i = x --> is prime
 	je .is_prime
@@ -87,11 +86,11 @@ prime:
 	pushq %rsi		# store y
 	pushq %rdi		# store x
 	call gcd		
-	cmpq $0x1, %rax		# if gcd != 1 --> not prime
+	cmpq $1, %rax		# if gcd != 1 --> not prime
 	jne .not_prime
 	popq %rdi		# restore x
 	popq %rsi		# restore i
-	addq $0x1, $rsi		# increment i
+	addq $1, $rsi		# increment i
 	jmp .loop
 		 
 .is_prime:
@@ -99,7 +98,7 @@ prime:
 	jmp .exit
 		
 .not_prime:
-	movq $0x1, %rax		# set return register to 1
+	movq $1, %rax		# set return register to 1
 .exit:
 	movq %rbp, %rsp		# set stack pointer
 	popq %rpb		# restore base pointer
