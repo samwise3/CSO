@@ -20,12 +20,12 @@ modulo:
 	# TO DO: write this function
 	pushq %rbp		# store rbp
 	movq %rsp, %rbp		# set base pointer
-.loop:
+.mod_loop:
 	cmpq %rsi, %rdi		# compare %rdi - %rsi
-	jl .exit		# exit if x < y
+	jl .mod_exit		# exit if x < y
 	subq %rsi, %rdi		# x -= y
-	jmp .loop		
-.exit:
+	jmp .mod_loop		
+.mod_exit:
 	addq %rsi, %rdi		# x += y
 	movq %rdi, %rax		# store (x) result in rax
 	popq %rbp		# restore base pointer
@@ -47,15 +47,15 @@ gcd:
 	pushq %rbp		# store rbp
 	movq %rsp, %rbp		# update base pointer
 	
-.loop:
+.gcd_loop:
 	pushq %rsi		# store y on the stack
 	cmpq $0, %rsi		# exit if y == 0	
-	je .exit
+	je .gcd_exit
 	call modulo
 	movq %rax, %rsi		# y = result of mod			
 	popq %rdi		# x equals previous y
-	jmp .loop		# recursive call
-.exit:
+	jmp .gcd_loop		# recursive call
+.gcd_exit:
 	movq %rbp, %rsp		# update stack pointer
 	popq %rbp		# restore base pointer
 	movq %rdi, %rax		# store x in rax
@@ -79,7 +79,7 @@ prime:
 	movq %rsp, %rbp		# update base pointer
 	
 	movq $2, %rsi		# loop increment start value
-.loop:
+.prime_loop:
 	cmpq %rsi, %rdi		# i = x --> is prime
 	je .is_prime
 	
@@ -90,18 +90,18 @@ prime:
 	jne .not_prime
 	popq %rdi		# restore x
 	popq %rsi		# restore i
-	addq $1, $rsi		# increment i
-	jmp .loop
+	addq $1, %rsi		# increment i
+	jmp .prime_loop
 		 
 .is_prime:
 	xorq %rax, %rax		# clear return register
-	jmp .exit
+	jmp .prime_exit
 		
 .not_prime:
 	movq $1, %rax		# set return register to 1
-.exit:
+.prime_exit:
 	movq %rbp, %rsp		# set stack pointer
-	popq %rpb		# restore base pointer
+	popq %rbp		# restore base pointer
 	retq
 	
 
