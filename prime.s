@@ -47,14 +47,15 @@ gcd:
 	pushq %rbp		# store rbp
 	movq %rsp, %rbp		# update base pointer
 	
-.gcd_loop:
+
 	pushq %rsi		# store y on the stack
 	cmpq $0, %rsi		# exit if y == 0	
 	je .gcd_exit
 	call modulo
 	movq %rax, %rsi		# y = result of mod			
 	popq %rdi		# x equals previous y
-	jmp .gcd_loop		# recursive call
+	popq %rbp
+	call gcd		# recursive call
 .gcd_exit:
 	movq %rbp, %rsp		# update stack pointer
 	popq %rbp		# restore base pointer
